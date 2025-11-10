@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 name 'drill'
 maintainer 'Eneo Tecnologia S.L.'
 maintainer_email 'git@redborder.com'

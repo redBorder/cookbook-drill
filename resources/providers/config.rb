@@ -5,11 +5,9 @@ include Drill::Helper
 
 action :add do
   begin
-    user = new_resource.user
     s3_malware_secrets = new_resource.s3_malware_secrets
     ipaddress = new_resource.ipaddress
 
-    # Crear usuario y grupo primero
     group 'drill' do
       system true
       action :create

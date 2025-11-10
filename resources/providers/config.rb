@@ -106,7 +106,8 @@ action :add do
       variables(
         s3_host: s3_malware_host,
         s3_access_key: s3_malware_access_key,
-        s3_secret_key: s3_malware_secret_key
+        s3_secret_key: s3_malware_secret_key,
+        s3_malware_bucket: s3_malware_bucket
       )
     end
 

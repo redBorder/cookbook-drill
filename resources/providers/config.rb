@@ -9,7 +9,6 @@ action :add do
     s3_malware_secrets = new_resource.s3_malware_secrets
     ipaddress = new_resource.ipaddress
 
-
     # Crear usuario y grupo primero
     group 'drill' do
       system true
@@ -32,7 +31,7 @@ action :add do
       action :create
     end
 
-    dnf_package "apache-drill" do
+    dnf_package 'apache-drill' do
       action :upgrade
     end
 
@@ -50,12 +49,12 @@ action :add do
       not_if 'stat -c %U /opt/drill | grep -q drill'
     end
 
-    template "/etc/drill/conf/drill-env.sh" do
+    template '/etc/drill/conf/drill-env.sh' do
       cookbook 'drill'
       source 'drill_drill-env.sh.erb'
       owner 'drill'
       group 'drill'
-      mode "0644"
+      mode '0644'
       variables(
         java_home: node['drill']['java_home'] || '/usr/lib/jvm/java-1.8.0',
         drill_pid_dir: '/run/drill',
@@ -64,33 +63,33 @@ action :add do
       notifies :restart, 'service[drill]', :delayed
     end
 
-    template "/etc/drill/conf/drill-override.conf" do
+    template '/etc/drill/conf/drill-override.conf' do
       cookbook 'drill'
       source 'drill_drill-override.conf.erb'
       owner 'drill'
       group 'drill'
-      mode "0644"
+      mode '0644'
       variables(
-        ipaddress: ipaddress,
+        ipaddress: ipaddress
       )
       notifies :restart, 'service[drill]', :delayed
     end
 
-    template "/etc/drill/conf/logback.xml" do
+    template '/etc/drill/conf/logback.xml' do
       cookbook 'drill'
       source 'drill_logback.xml.erb'
       owner 'drill'
       group 'drill'
-      mode "0644"
+      mode '0644'
       notifies :restart, 'service[drill]', :delayed
     end
 
-    template "/etc/drill/conf/core-site.xml" do
+    template '/etc/drill/conf/core-site.xml' do
       cookbook 'drill'
       source 'drill_core-site.xml.erb'
       owner 'drill'
       group 'drill'
-      mode "0644"
+      mode '0644'
       variables(
         access_key_id: s3_malware_access_key,
         secret_access_key: s3_malware_secret_key,
@@ -99,25 +98,23 @@ action :add do
       notifies :restart, 'service[drill]', :delayed
     end
 
-    template "/etc/drill/conf/storage-plugins-override.conf" do
+    template '/etc/drill/conf/storage-plugins-override.conf' do
       cookbook 'drill'
       source 'drill_storage-plugins-override.conf.erb'
       owner 'drill'
       group 'drill'
-      mode "0644"
+      mode '0644'
       notifies :restart, 'service[drill]', :delayed
       variables(
         s3_host: s3_malware_host,
         s3_access_key: s3_malware_access_key,
-        s3_secret_key: s3_malware_secret_key,
+        s3_secret_key: s3_malware_secret_key
       )
     end
 
-
-
-    service "drill" do
-      service_name "drill"
-      supports :status => true, :reload => true, :restart => true, :enable => true
+    service 'drill' do
+      service_name 'drill'
+      supports status: true, reload: true, restart: true, enable: true
       action [:enable, :start]
     end
 
@@ -130,13 +127,13 @@ end
 
 action :remove do
   begin
-    service "drill" do
-      service_name "drill"
-      supports :status => true, :enable => true
+    service 'drill' do
+      service_name 'drill'
+      supports status: true, enable: true
       action [:stop, :disable]
     end
 
-    dnf_package "apache-drill" do
+    dnf_package 'apache-drill' do
       action :remove
     end
 

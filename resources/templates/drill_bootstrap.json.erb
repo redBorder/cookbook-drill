@@ -1,0 +1,67 @@
+  "storage":{
+<% unless node["redBorder"]["manager"]["malware"]["mode"] and node["redBorder"]["manager"]["malware"]["mode"] == "logstash" %>
+    hdfs: {
+      "type": "file",
+      "enabled": true,
+      "connection": "hdfs://hadoopnamenode.redborder.cluster:8020",
+      "workspaces": {
+        "data": {
+          "location": "/user/oozie/resultData",
+          "writable": true,
+          "defaultInputFormat": "json"
+        },
+        "realTime": {
+          "location": "/user/oozie/resultData/realTime",
+          "writable": true,
+          "defaultInputFormat": "json"
+        },
+        "historical": {
+          "location": "/user/oozie/resultData/historical",
+          "writable": true,
+          "defaultInputFormat": "json"
+        },
+        "email": {
+          "location": "/rb/raw/data/rb_mail_post/default/hourly",
+          "writable": false,
+          "defaultInputFormat": "json"
+        },
+        "log": {
+        "location": "/rb/raw/data/rb_ioc",
+        "writable": false,
+        "defaultInputFormat": "json"
+        }
+      },
+      "formats": null
+    }
+<% else %>
+    "s3": {
+      "type": "file",
+      "enabled": true,
+      "connection": "s3a://malware",
+      "config": null,
+      "workspaces": {
+        "data": {
+          "location": "/mdata/resultData",
+          "writable": true,
+          "defaultInputFormat": "json"
+        },
+        "realTime": {
+          "location": "/mdata/resultData/realTime",
+          "writable": true,
+          "defaultInputFormat": "json"
+        },
+        "historical": {
+          "location": "/mdata/resultData/historical",
+          "writable": true,
+          "defaultInputFormat": "json"
+        },
+        "email": {
+          "location": "/mdata/mailData/rbMailPost",
+          "writable": false,
+          "defaultInputFormat": "json"
+        }
+      }
+    }
+<% end %>
+  }
+}

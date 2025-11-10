@@ -1,0 +1,59 @@
+{
+  "storage": {
+    "s3": {
+      "type": "file",
+      "enabled": true,
+      "connection": "s3a://malware",
+      "config": {
+        "fs.s3a.access.key": "<%= @s3_access_key %>",
+        "fs.s3a.secret.key": "<%= @s3_secret_key %>",
+        "fs.s3a.endpoint": "<%= @s3_host %>",
+        "fs.s3a.path.style.access": "true",
+        "fs.s3a.connection.ssl.enabled": "true",
+        "fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",
+        "fs.s3a.aws.credentials.provider": "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider",
+        "fs.s3a.connection.establish.timeout": "5000",
+        "fs.s3a.connection.timeout": "10000"
+      },
+      "workspaces": {
+        "root": {
+          "location": "/",
+          "writable": false,
+          "defaultInputFormat": null,
+          "allowAccessOutsideWorkspace": false
+        },
+        "historical": {
+          "location": "/mdata",
+          "writable": true,
+          "defaultInputFormat": "text",
+          "allowAccessOutsideWorkspace": false
+        }
+      },
+      "formats": {
+        "json": {
+          "type": "json",
+          "extensions": ["json"]
+        },
+        "text": {
+          "type": "text",
+          "extensions": ["txt", "log"]
+        },
+        "csv": {
+          "type": "text",
+          "extensions": ["csv"]
+        },
+        "binary": {
+          "type": "sequencefile",
+          "extensions": ["pdf", "pcap", "exe", "bin", "zip"]
+        },
+        "noext": {
+          "type": "text",
+          "extensions": ["*"]
+        },
+        "parquet": {
+          "type": "parquet"
+        }
+      }
+    }
+  }
+}

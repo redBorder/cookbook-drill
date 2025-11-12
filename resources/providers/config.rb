@@ -6,7 +6,6 @@ include Drill::Helper
 action :add do
   begin
     s3_malware_secrets = new_resource.s3_malware_secrets
-    ipaddress = new_resource.ipaddress
 
     group 'drill' do
       system true
@@ -67,9 +66,6 @@ action :add do
       owner 'drill'
       group 'drill'
       mode '0644'
-      variables(
-        ipaddress: ipaddress
-      )
       notifies :restart, 'service[drill]', :delayed
     end
 

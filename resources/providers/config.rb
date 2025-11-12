@@ -181,7 +181,7 @@ action :register do
         action :nothing
       end.run_action(:run)
 
-      node.override['drill']['registered'] = true
+      node.normal['drill']['registered'] = true
       Chef::Log.info('drill service has been registered to consul')
     end
   rescue => e
@@ -198,7 +198,7 @@ action :deregister do
       end.run_action(:run)
     end
 
-    node.override['drill']['registered'] = false
+    node.normal['drill']['registered'] = false
     Chef::Log.info('Drill service has been deregistered from Consul')
   rescue => e
     Chef::Log.error(e.message)

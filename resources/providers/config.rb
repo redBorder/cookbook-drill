@@ -6,7 +6,6 @@ include Drill::Helper
 action :add do
   begin
     s3_malware_secrets = new_resource.s3_malware_secrets
-    ipaddress = new_resource.ipaddress
 
     group 'drill' do
       system true
@@ -67,9 +66,6 @@ action :add do
       owner 'drill'
       group 'drill'
       mode '0644'
-      variables(
-        ipaddress: ipaddress
-      )
       notifies :restart, 'service[drill]', :delayed
     end
 
@@ -136,6 +132,31 @@ action :remove do
       action :remove
     end
 
+    directory '/var/log/drill' do
+      recursive true
+      action :delete
+    end
+
+    directory '/etc/drill' do
+      recursive true
+      action :delete
+    end
+
+    directory '/opt/drill' do
+      recursive true
+      action :delete
+    end
+
+    directory '/run/drill' do
+      recursive true
+      action :delete
+    end
+
+    directory '/etc/logrotate.d/drill' do
+      recursive true
+      action :delete
+    end
+
     Chef::Log.info('Drill cookbook has been processed successfully')
   rescue => e
     Chef::Log.error(e.message)
@@ -152,7 +173,7 @@ action :register do
       query['ID'] = "drill-#{node['hostname']}"
       query['Name'] = 'drill'
       query['Address'] = ipaddress
-      query['Port'] = 3000
+      query['Port'] = 8047
       json_query = Chef::JSONCompat.to_json(query)
 
       execute 'Register service in consul' do
@@ -160,7 +181,7 @@ action :register do
         action :nothing
       end.run_action(:run)
 
-      node.override['drill']['registered'] = true
+      node.normal['drill']['registered'] = true
       Chef::Log.info('drill service has been registered to consul')
     end
   rescue => e
@@ -177,7 +198,7 @@ action :deregister do
       end.run_action(:run)
     end
 
-    node.override['drill']['registered'] = false
+    node.normal['drill']['registered'] = false
     Chef::Log.info('Drill service has been deregistered from Consul')
   rescue => e
     Chef::Log.error(e.message)

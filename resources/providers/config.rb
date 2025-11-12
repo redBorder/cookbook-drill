@@ -132,6 +132,31 @@ action :remove do
       action :remove
     end
 
+    directory '/var/log/drill' do
+      recursive true
+      action :delete
+    end
+
+    directory '/etc/drill' do
+      recursive true
+      action :delete
+    end
+
+    directory '/opt/drill' do
+      recursive true
+      action :delete
+    end
+
+    directory '/run/drill' do
+      recursive true
+      action :delete
+    end
+
+    directory '/etc/logrotate.d/drill' do
+      recursive true
+      action :delete
+    end
+
     Chef::Log.info('Drill cookbook has been processed successfully')
   rescue => e
     Chef::Log.error(e.message)
@@ -148,7 +173,7 @@ action :register do
       query['ID'] = "drill-#{node['hostname']}"
       query['Name'] = 'drill'
       query['Address'] = ipaddress
-      query['Port'] = 3000
+      query['Port'] = 8047
       json_query = Chef::JSONCompat.to_json(query)
 
       execute 'Register service in consul' do

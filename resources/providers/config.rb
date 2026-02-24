@@ -166,13 +166,13 @@ end
 
 action :register do
   begin
-    ipaddress = new_resource.ipaddress
+    ipaddress_sync = new_resource.ipaddress_sync
 
     unless node['drill']['registered']
       query = {}
       query['ID'] = "drill-#{node['hostname']}"
       query['Name'] = 'drill'
-      query['Address'] = ipaddress
+      query['Address'] = ipaddress_sync
       query['Port'] = 8047
       json_query = Chef::JSONCompat.to_json(query)
 

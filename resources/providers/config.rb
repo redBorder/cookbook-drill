@@ -6,6 +6,15 @@ include Drill::Helper
 action :add do
   begin
     s3_malware_secrets = new_resource.s3_malware_secrets
+    truststore_password = new_resource.truststore_password
+
+    if truststore_password.nil? || truststore_password.empty?
+      truststore_password = generate_random_password(8)
+      execute 'Save truststore password in passwords data bag' do
+        command "bash -c 'f=$(mktemp /tmp/databag.XXXXXX.json) && echo '\"'\"'{\"id\":\"drill\",\"truststore_password\":\"#{truststore_password}\"}' > $f && knife data bag from file passwords $f; rm -f $f'"
+        not_if 'knife data bag show passwords drill'
+      end
+    end
 
     group 'drill' do
       system true
@@ -46,6 +55,12 @@ action :add do
       not_if 'stat -c %U /opt/drill | grep -q drill'
     end
 
+    truststore_path = '/etc/nginx/ssl/s3-truststore.jks'
+    execute 'Create truststore and import certificate' do
+      command "keytool -importcert -alias minio -file /etc/nginx/ssl/s3.crt -keystore #{truststore_path} -storepass #{truststore_password} -noprompt"
+      not_if ::File.exist?(truststore_path) || !::File.exist?('/etc/nginx/ssl/s3.crt')
+    end
+
     template '/etc/drill/conf/drill-env.sh' do
       cookbook 'drill'
       source 'drill_drill-env.sh.erb'
@@ -54,6 +69,8 @@ action :add do
       mode '0644'
       variables(
         java_home: node['drill']['java_home'] || '/usr/lib/jvm/java-1.8.0',
+        truststore_password: truststore_password,
+        truststore_path: truststore_path,
         drill_pid_dir: '/run/drill',
         drill_log_dir: '/var/log/drill'
       )

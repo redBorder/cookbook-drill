@@ -8,6 +8,7 @@ default_action :add
 
 attribute :user, kind_of: String, default: 'root'
 attribute :s3_malware_secrets, kind_of: Hash, default: {}
+attribute :truststore_password, kind_of: String, default: nil
 attribute :drill_ips, kind_of: Array, default: ['127.0.0.1']
 attribute :drill_port, kind_of: String, default: '8047'
 attribute :ipaddress_sync, kind_of: String, default: '127.0.0.1'

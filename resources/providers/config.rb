@@ -8,7 +8,7 @@ action :add do
     s3_malware_secrets = new_resource.s3_malware_secrets
     truststore_password = new_resource.truststore_password
 
-    if truststore_password.nil? || truststore_password.empty?
+    if truststore_password.nil?
       truststore_password = generate_random_password(8)
       execute 'Save truststore password in passwords data bag' do
         command "bash -c 'f=$(mktemp /tmp/databag.XXXXXX.json) && echo '\"'\"'{\"id\":\"drill\",\"truststore_password\":\"#{truststore_password}\"}' > $f && knife data bag from file passwords $f; rm -f $f'"

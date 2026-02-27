@@ -125,7 +125,9 @@ action :add do
         s3_host: s3_endpoint,
         s3_access_key: s3_malware_access_key,
         s3_secret_key: s3_malware_secret_key,
-        s3_malware_bucket: s3_malware_bucket
+        s3_malware_bucket: s3_malware_bucket,
+        truststore_path: truststore_path,
+        truststore_password: truststore_password
       )
     end
 

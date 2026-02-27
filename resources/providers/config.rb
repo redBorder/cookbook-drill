@@ -10,10 +10,11 @@ action :add do
 
     if truststore_password.nil?
       truststore_password = generate_random_password(8)
-      execute 'Save truststore password in passwords data bag' do
-        command "bash -c 'f=$(mktemp /tmp/databag.XXXXXX.json) && echo '\"'\"'{\"id\":\"drill\",\"truststore_password\":\"#{truststore_password}\"}' > $f && knife data bag from file passwords $f; rm -f $f'"
-        not_if 'knife data bag show passwords drill'
-      end
+      data_bag_item = Chef::DataBagItem.new
+      data_bag_item.data_bag('passwords')
+      data_bag_item['id'] = 'drill'
+      data_bag_item['truststore_password'] = truststore_password
+      data_bag_item.save
     end
 
     group 'drill' do
@@ -58,7 +59,7 @@ action :add do
     truststore_path = '/etc/nginx/ssl/s3-truststore.jks'
     execute 'Create truststore and import certificate' do
       command "keytool -importcert -alias minio -file /etc/nginx/ssl/s3.crt -keystore #{truststore_path} -storepass #{truststore_password} -noprompt"
-      not_if ::File.exist?(truststore_path) || !::File.exist?('/etc/nginx/ssl/s3.crt')
+      not_if { ::File.exist?(truststore_path) || !::File.exist?('/etc/nginx/ssl/s3.crt') }
     end
 
     template '/etc/drill/conf/drill-env.sh' do

@@ -8,6 +8,9 @@
         "fs.s3a.access.key": "<%= @s3_access_key %>",
         "fs.s3a.secret.key": "<%= @s3_secret_key %>",
         "fs.s3a.endpoint": "<%= @s3_host %>",
+        "fs.s3a.ssl.truststore.location": "<%= @truststore_path %>",
+        "fs.s3a.ssl.truststore.password": "<%= @truststore_password %>",
+        "fs.s3a.ssl.context.provider": "org.apache.hadoop.fs.s3a.TLSContextFactory"
         "fs.s3a.path.style.access": "true",
         "fs.s3a.connection.ssl.enabled": "true",
         "fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",

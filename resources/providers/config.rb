@@ -6,7 +6,11 @@ include Drill::Helper
 action :add do
   begin
     s3_malware_secrets = new_resource.s3_malware_secrets
+    s3_host = new_resource.s3_host
+    cdomain = new_resource.cdomain
     truststore_password = new_resource.truststore_password
+
+    s3_endpoint = "#{s3_host}.#{cdomain}"
 
     if truststore_password.nil?
       truststore_password = generate_random_password(8)
@@ -118,7 +122,7 @@ action :add do
       mode '0644'
       notifies :restart, 'service[drill]', :delayed
       variables(
-        s3_host: s3_malware_host,
+        s3_host: s3_endpoint,
         s3_access_key: s3_malware_access_key,
         s3_secret_key: s3_malware_secret_key,
         s3_malware_bucket: s3_malware_bucket

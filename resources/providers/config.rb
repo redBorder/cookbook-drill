@@ -8,18 +8,9 @@ action :add do
     s3_malware_secrets = new_resource.s3_malware_secrets
     s3_host = new_resource.s3_host
     cdomain = new_resource.cdomain
-    truststore_password = new_resource.truststore_password
-
+    drill_secrets = new_resource.drill_secrets
+    truststore_password = drill_secrets['password'] unless drill_secrets.empty?
     s3_endpoint = "#{s3_host}.#{cdomain}"
-
-    if truststore_password.nil?
-      truststore_password = generate_random_password(8)
-      data_bag_item = Chef::DataBagItem.new
-      data_bag_item.data_bag('passwords')
-      data_bag_item['id'] = 'drill'
-      data_bag_item['truststore_password'] = truststore_password
-      data_bag_item.save
-    end
 
     group 'drill' do
       system true

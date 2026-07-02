@@ -9,7 +9,7 @@ action :add do
     s3_host = new_resource.s3_host
     cdomain = new_resource.cdomain
     drill_secrets = new_resource.drill_secrets
-    truststore_password = drill_secrets['password'] unless drill_secrets.empty?
+    truststore_password = drill_secrets['truststore_password'] unless drill_secrets.empty?
     s3_endpoint = "#{s3_host}.#{cdomain}"
 
     group 'drill' do
@@ -54,7 +54,7 @@ action :add do
     truststore_path = '/etc/nginx/ssl/s3-truststore.jks'
     execute 'Create truststore and import certificate' do
       command "keytool -importcert -alias minio -file /etc/nginx/ssl/s3.crt -keystore #{truststore_path} -storepass #{truststore_password} -noprompt"
-      not_if { ::File.exist?(truststore_path) || !::File.exist?('/etc/nginx/ssl/s3.crt') }
+      not_if { ::File.exist?(truststore_path) || !::File.exist?('/etc/nginx/ssl/s3.crt') || truststore_password.nil? }
     end
 
     template '/etc/drill/conf/drill-env.sh' do

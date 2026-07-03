@@ -6,6 +6,11 @@ include Drill::Helper
 action :add do
   begin
     s3_malware_secrets = new_resource.s3_malware_secrets
+    s3_host = new_resource.s3_host
+    cdomain = new_resource.cdomain
+    drill_secrets = new_resource.drill_secrets
+    truststore_password = drill_secrets['truststore_password'] unless drill_secrets.empty?
+    s3_endpoint = "#{s3_host}.#{cdomain}"
 
     group 'drill' do
       system true
@@ -46,6 +51,12 @@ action :add do
       not_if 'stat -c %U /opt/drill | grep -q drill'
     end
 
+    truststore_path = '/etc/nginx/ssl/s3-truststore.jks'
+    execute 'Create truststore and import certificate' do
+      command "keytool -importcert -alias minio -file /etc/nginx/ssl/s3.crt -keystore #{truststore_path} -storepass #{truststore_password} -noprompt"
+      not_if { ::File.exist?(truststore_path) || !::File.exist?('/etc/nginx/ssl/s3.crt') || truststore_password.nil? }
+    end
+
     template '/etc/drill/conf/drill-env.sh' do
       cookbook 'drill'
       source 'drill_drill-env.sh.erb'
@@ -54,6 +65,8 @@ action :add do
       mode '0644'
       variables(
         java_home: node['drill']['java_home'] || '/usr/lib/jvm/java-1.8.0',
+        truststore_password: truststore_password,
+        truststore_path: truststore_path,
         drill_pid_dir: '/run/drill',
         drill_log_dir: '/var/log/drill'
       )
@@ -100,10 +113,12 @@ action :add do
       mode '0644'
       notifies :restart, 'service[drill]', :delayed
       variables(
-        s3_host: s3_malware_host,
+        s3_host: s3_endpoint,
         s3_access_key: s3_malware_access_key,
         s3_secret_key: s3_malware_secret_key,
-        s3_malware_bucket: s3_malware_bucket
+        s3_malware_bucket: s3_malware_bucket,
+        truststore_path: truststore_path,
+        truststore_password: truststore_password
       )
     end
 
@@ -166,13 +181,13 @@ end
 
 action :register do
   begin
-    ipaddress = new_resource.ipaddress
+    ipaddress_sync = new_resource.ipaddress_sync
 
     unless node['drill']['registered']
       query = {}
       query['ID'] = "drill-#{node['hostname']}"
       query['Name'] = 'drill'
-      query['Address'] = ipaddress
+      query['Address'] = ipaddress_sync
       query['Port'] = 8047
       json_query = Chef::JSONCompat.to_json(query)
 

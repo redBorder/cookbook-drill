@@ -1,6 +1,11 @@
 cookbook-drill CHANGELOG
 ===============
 
+## 0.0.3
+
+  - Pablo Pérez
+    - [621ae65] Bugfix/#24059 fix file and historical buttons not working (#4)
+
 ## 0.0.2
 
   - Juan Soto

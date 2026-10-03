@@ -1,6 +1,11 @@
 cookbook-drill CHANGELOG
 ===============
 
+## 0.0.4
+
+  - manegron
+    - [8cb808a] Upload cookbook only if opscode-erchef is active
+
 ## 0.0.3
 
   - Pablo Pérez

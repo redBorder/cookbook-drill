@@ -32,7 +32,11 @@ fi
 %post
 case "$1" in
   1) : ;;  # install
-  2) su - -s /bin/bash -c 'source /etc/profile && rvm gemset use default && env knife cookbook upload drill' ;;
+  2)
+    if systemctl is-active --quiet opscode-erchef; then
+      su - -s /bin/bash -c 'source /etc/profile && rvm gemset use default && env knife cookbook upload drill'
+    fi
+  ;;
 esac
 
 %postun

@@ -5,6 +5,7 @@ include Drill::Helper
 
 action :add do
   begin
+    openbao = new_resource.openbao
     s3_malware_secrets = new_resource.s3_malware_secrets
     s3_host = new_resource.s3_host
     cdomain = new_resource.cdomain
@@ -91,18 +92,40 @@ action :add do
       notifies :restart, 'service[drill]', :delayed
     end
 
-    template '/etc/drill/conf/core-site.xml' do
-      cookbook 'drill'
-      source 'drill_core-site.xml.erb'
-      owner 'drill'
-      group 'drill'
-      mode '0644'
-      variables(
-        access_key_id: s3_malware_access_key,
-        secret_access_key: s3_malware_secret_key,
-        s3_host: s3_malware_host
-      )
-      notifies :restart, 'service[drill]', :delayed
+    if openbao
+      openbao_secret_file 'drill-core-site' do
+        source 'drill_core-site.xml.erb'
+        cookbook 'drill'
+        variables(
+          access_key_id: s3_malware_access_key,
+          secret_access_key: s3_malware_secret_key,
+          s3_host: s3_malware_host
+        )
+        destination '/run/rb-secrets/drill/core-site.xml'
+        owner 'root'
+        group 'drill'
+        mode '0640'
+        unit 'drill'
+      end
+
+      link '/etc/drill/conf/core-site.xml' do
+        to '/run/rb-secrets/drill/core-site.xml'
+        notifies :restart, 'service[drill]', :delayed
+      end
+    else
+      template '/etc/drill/conf/core-site.xml' do
+        cookbook 'drill'
+        source 'drill_core-site.xml.erb'
+        owner 'drill'
+        group 'drill'
+        mode '0644'
+        variables(
+          access_key_id: s3_malware_access_key,
+          secret_access_key: s3_malware_secret_key,
+          s3_host: s3_malware_host
+        )
+        notifies :restart, 'service[drill]', :delayed
+      end
     end
 
     template '/etc/drill/conf/storage-plugins-override.conf' do

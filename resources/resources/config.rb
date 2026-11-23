@@ -8,7 +8,6 @@ default_action :add
 
 attribute :user, kind_of: String, default: 'root'
 attribute :s3_malware_secrets, kind_of: Hash, default: {}
-attribute :openbao, kind_of: [TrueClass, FalseClass], default: false
 attribute :s3_host, kind_of: String, default: 's3.service'
 attribute :cdomain, kind_of: String, default: 'redborder.cluster'
 attribute :drill_secrets, kind_of: Hash, default: {}

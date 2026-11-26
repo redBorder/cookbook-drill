@@ -53,7 +53,7 @@ action :add do
 
     truststore_path = '/etc/nginx/ssl/s3-truststore.jks'
     execute 'Create truststore and import certificate' do
-      command "keytool -importcert -alias minio -file /etc/nginx/ssl/s3.crt -keystore #{truststore_path} -storepass #{truststore_password} -noprompt"
+      command "keytool -importcert -alias s3 -file /etc/nginx/ssl/s3.crt -keystore #{truststore_path} -storepass #{truststore_password} -noprompt"
       not_if { ::File.exist?(truststore_path) || !::File.exist?('/etc/nginx/ssl/s3.crt') || truststore_password.nil? }
     end
 

@@ -91,17 +91,23 @@ action :add do
       notifies :restart, 'service[drill]', :delayed
     end
 
-    template '/etc/drill/conf/core-site.xml' do
-      cookbook 'drill'
+    openbao_secret_file 'drill-core-site' do
       source 'drill_core-site.xml.erb'
-      owner 'drill'
-      group 'drill'
-      mode '0644'
+      cookbook 'drill'
       variables(
         access_key_id: s3_malware_access_key,
         secret_access_key: s3_malware_secret_key,
         s3_host: s3_malware_host
       )
+      destination '/run/rb-secrets/drill/core-site.xml'
+      owner 'root'
+      group 'drill'
+      mode '0640'
+      unit 'drill'
+    end
+
+    link '/etc/drill/conf/core-site.xml' do
+      to '/run/rb-secrets/drill/core-site.xml'
       notifies :restart, 'service[drill]', :delayed
     end
 
